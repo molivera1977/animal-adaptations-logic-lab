@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr. O's Bio-Coder (Image Fixed)</title>
+    <style>
+        :root {
+            /* COLORS FROM BOOK COVER */
+            --bg-color: #1a237e;      
+            --panel-color: #283593;   
+            --text-color: #ffffff;    
+            --accent-green: #00703c;  
+            --accent-red: #ff5252;    
+            --accent-blue: #81d4fa;   
+            --module-bg: #3949ab;     
+            --highlight-color: #ffd700; 
+        }
+
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            background-image: linear-gradient(to bottom, #1a237e, #5c6bc0);
+        }
+
+        /* --- INTRO SCREEN --- */
+        #intro-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; 
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px; 
+            overflow-y: auto; 
+        }
+
+        .mission-box {
+            border: 5px solid var(--accent-green);
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            background: rgba(0, 0, 0, 0.85);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            margin-bottom: 50px; 
+        }
+        
+        /* --- IMAGE FIX --- */
+        .cover-image {
+            width: auto;           /* Do not force full width */
+            max-width: 100%;       /* Ensure it fits in box */
+            height: auto;          /* Keep aspect ratio */
+            max-height: 350px;     /* Limit height so it fits on screen */
+            display: block;
+            margin: 0 auto 20px;   /* Center the image */
+            border-radius: 10px;
+            border: 3px solid var(--text-color);
+        }
+
+        .instruction-list {
+            text-align: left;
+            margin: 20px 0;
+            line-height: 1.5;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--accent-blue);
+        }
+
+        .start-btn {
+            background-color: var(--accent-green);
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 15px 40px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.2s;
+        }
+        .start-btn:hover { background-color: #00a152; transform: scale(1.05); }
+
+        .intro-audio-btn {
+            background: var(--module-bg); color: #fff; border: 1px solid var(--accent-blue);
+            padding: 10px 20px; margin-bottom: 20px; cursor: pointer; border-radius: 20px;
+            display: flex; align-items: center; gap: 10px; margin: 0 auto;
+        }
+        .intro-audio-btn:hover { background: var(--accent-blue); color: var(--bg-color); }
+
+        .word-active {
+            background-color: var(--highlight-color);
+            color: #000;
+            border-radius: 3px;
+            padding: 0 2px;
+            box-shadow: 0 0 10px var(--highlight-color);
+            font-weight: bold;
+        }
+
+        /* --- REWARD SCREEN --- */
+        #reward-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            animation: popIn 0.8s ease-out;
+            background: rgba(0,0,0,0.4);
+            padding: 40px;
+            border-radius: 20px;
+            border: 4px solid #ffd700;
+            margin-top: 50px;
+        }
+
+        .certificate {
+            background: #fff;
+            color: #000;
+            padding: 40px;
+            border: 10px double #283593;
+            max-width: 600px;
+            font-family: 'Georgia', serif;
+            box-shadow: 0 0 50px #ffd700;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.1); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        /* --- GAME UI --- */
+        #game-wrapper {
+            display: none; 
+            width: 100%;
+            max-width: 1000px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            width: 100%;
+            justify-content: space-between;
+            background: var(--panel-color);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--accent-blue);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .sound-toggle-btn {
+            background: var(--module-bg); color: #fff; border: none; padding: 8px 16px;
+            cursor: pointer; border-radius: 20px; font-weight: bold;
+        }
+        .sound-toggle-btn.active { background: var(--accent-green); color: #fff; }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .scenario-panel, .modules-panel {
+            flex: 1;
+            background: rgba(40, 53, 147, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--accent-blue);
+            min-width: 300px;
+        }
+
+        .scenario-text { 
+            font-size: 1.35em; 
+            margin-bottom: 20px; 
+            line-height: 1.8;
+            color: var(--text-color); 
+        }
+
+        .drop-zone {
+            height: 110px;
+            border: 3px dashed var(--accent-blue);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            background: rgba(0,0,0,0.2);
+            color: var(--accent-blue);
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+        .drop-zone.drag-over { border-color: var(--accent-green); background: rgba(255,255,255,0.1); color: #fff; }
+        .drop-zone.correct { border-color: var(--accent-green); background: rgba(0, 200, 83, 0.2); color: var(--accent-green); }
+
+        .module {
+            background-color: var(--module-bg);
+            border-left: 5px solid var(--accent-blue);
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: grab;
+            border-radius: 4px;
+            user-select: none;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .module:hover { background: var(--accent-blue); color: var(--bg-color); transform: translateX(5px); }
+        .module:active { cursor: grabbing; }
+
+        .speaker-icon {
+            cursor: pointer; font-size: 1.2em; margin-left: 10px; padding: 5px; border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+        .speaker-icon:hover { background: #fff; color: #000; }
+
+        .console-panel {
+            width: 100%;
+            background: #000;
+            border-top: 4px solid var(--accent-green);
+            border-radius: 0 0 8px 8px;
+            padding: 15px;
+            margin-top: 20px;
+            height: 130px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 1.05em;
+        }
+
+        .log-entry { margin: 8px 0; display: block; border-left: 3px solid transparent; padding-left: 10px; }
+        .log-error { color: var(--accent-red); border-left-color: var(--accent-red); }
+        .log-success { color: var(--accent-green); border-left-color: var(--accent-green); }
+        .log-info { color: var(--accent-blue); border-left-color: var(--accent-blue); }
+        
+        .audio-btn-small { background: none; border: none; cursor: pointer; font-size: 1.5em; color: var(--accent-blue); }
+        .audio-btn-small:hover { color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div id="intro-screen">
+        <div class="mission-box">
+            <img src="cover.jpg" alt="Animal Adaptations Cover" class="cover-image">
+            
+            <h1 style="color: var(--accent-green); margin-top: 0; text-shadow: 2px 2px 0px #000; font-size: 2.5em;">Logic Lab</h1>
+            
+            <button class="intro-audio-btn" onclick="readIntro()">
+                <span>🔊 LISTEN TO INSTRUCTIONS</span>
+            </button>
+
+            <div id="intro-text-block">
+                <p style="font-size: 1.2em; color: var(--accent-blue);"><strong>Subject: "Animal Adaptations"</strong></p>
+                <p><strong>THE MISSION:</strong> These animals are in trouble! You need to give them the right body part or behavior to save them.</p>
+                <div class="instruction-list">
+                    <p><strong>YOUR STEPS:</strong></p>
+                    <p>1. <strong>READ</strong> the red "Failure" box to see what is wrong.</p>
+                    <p>2. <strong>THINK</strong> back to the story. What did the animal use to solve this?</p>
+                    <p>3. <strong>DRAG</strong> the blue answer block into the empty slot to fix it.</p>
+                </div>
+            </div>
+
+            <button class="start-btn" onclick="startGame()">START DEBUGGING</button>
+        </div>
+    </div>
+
+    <div id="game-wrapper">
+        <div class="header-controls">
+            <div style="font-weight: bold;">MISSION PROGRESS: Level <span id="level-indicator">1</span> / 6</div>
+            <button id="sound-toggle" class="sound-toggle-btn active" onclick="toggleSound()">
+                <span>🔊</span> <span id="sound-text">VOICE: ON</span>
+            </button>
+        </div>
+
+        <div class="game-container">
+            <div class="scenario-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--accent-blue); padding-bottom: 10px;">
+                    <h3 style="color: var(--accent-red); margin: 0;">// Missing Adaptation - THE PROBLEM</h3>
+                    <button class="audio-btn-small" title="Replay Audio" onclick="replayScenario()">🔊</button>
+                </div>
+                
+                <p id="scenario-desc" class="scenario-text"></p>
+
+                <p style="color: var(--accent-blue); margin-top: 30px; font-size: 0.9em;">// DRAG THE SOLUTION HERE:</p>
+                <div id="drop-zone" class="drop-zone">
+                    [ DRAG BLUE BLOCK HERE ]
+                </div>
+            </div>
+
+            <div class="modules-panel">
+                <h3 style="color: var(--accent-green); border-bottom: 1px solid var(--accent-blue); padding-bottom: 10px;">// CODE LIBRARY (THE SOLUTIONS)</h3>
+                <div id="modules-container">
+                    </div>
+            </div>
+        </div>
+
+        <div id="reward-screen">
+            <div class="certificate">
+                <h1 style="color: #283593; margin: 0;">CERTIFICATE OF COMPLETION</h1>
+                <p>This certifies that</p>
+                <h2 style="color: #00703c; font-size: 2.5em; border-bottom: 2px solid #000; display:inline-block;">Bio-Engineer Class 4</h2>
+                <p>Has successfully mastered</p>
+                <h3>ANIMAL ADAPTATIONS</h3>
+                <p>Mission Status: <strong>ACCOMPLISHED</strong></p>
+                <div style="font-size: 3em;">🏆</div>
+            </div>
+            <button class="start-btn" onclick="location.reload()" style="margin-top: 20px;">PLAY AGAIN</button>
+        </div>
+
+        <div class="console-panel" id="console">
+            <span class="log-entry log-info">> Connected. Waiting for student input...</span>
+        </div>
+    </div>
+
+    <script>
+        // --- SPEECH & KARAOKE ENGINE ---
+        const synth = window.speechSynthesis;
+        let voiceEnabled = true; 
+        
+        function speakWithHighlight(text, elementId) {
+            if (!voiceEnabled) return;
+            synth.cancel();
+
+            const element = document.getElementById(elementId);
+            const words = text.split(' ');
+            
+            // Generate UNIQUE IDs based on the parent element ID
+            if (element) {
+                element.innerHTML = words.map((word, i) => `<span id="${elementId}-word-${i}">${word} </span>`).join('');
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = synth.getVoices();
+            const preferredVoice = voices.find(v => v.name.includes("Google US English")) || voices[0];
+            if (preferredVoice) utterance.voice = preferredVoice;
+            utterance.rate = 0.9; 
+
+            if (element) {
+                let currentSpanIndex = 0;
+                utterance.onboundary = (event) => {
+                    const prev = document.getElementById(`${elementId}-word-${currentSpanIndex - 1}`);
+                    if (prev) prev.classList.remove('word-active');
+                    
+                    const current = document.getElementById(`${elementId}-word-${currentSpanIndex}`);
+                    if (current) {
+                        current.classList.add('word-active');
+                        currentSpanIndex++;
+                    }
+                };
+                utterance.onend = () => {
+                    const allSpans = element.querySelectorAll('span');
+                    allSpans.forEach(s => s.classList.remove('word-active'));
+                };
+            }
+            synth.speak(utterance);
+        }
+
+        function speak(text) {
+            if (!voiceEnabled) return;
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = synth.getVoices();
+            const preferredVoice = voices.find(v => v.name.includes("Google US English")) || voices[0];
+            if (preferredVoice) utterance.voice = preferredVoice;
+            synth.speak(utterance);
+        }
+
+        function readIntro() {
+            const textToRead = "The Mission: These animals are in trouble! You need to give them the right body part or behavior to save them. Step 1: Read the red Failure box to see what is wrong. Step 2: Think back to the story. Step 3: Drag the blue answer block into the empty slot.";
+            speakWithHighlight(textToRead, 'intro-text-block');
+        }
+
+        function startGame() {
+            synth.cancel();
+            document.getElementById('intro-screen').style.display = 'none';
+            document.getElementById('game-wrapper').style.display = 'flex';
+            loadLevel(0);
+        }
+
+        function toggleSound() {
+            voiceEnabled = !voiceEnabled;
+            const btn = document.getElementById('sound-toggle');
+            const txt = document.getElementById('sound-text');
+            
+            if(voiceEnabled) {
+                btn.classList.add('active');
+                txt.innerText = "VOICE: ON";
+                speak("Voice systems online.");
+            } else {
+                btn.classList.remove('active');
+                txt.innerText = "VOICE: OFF";
+                synth.cancel(); 
+            }
+        }
+
+        // --- GAME DATA (6 LEVELS) ---
+        const levels = [
+            {
+                id: 1,
+                title: "ALLIGATOR",
+                desc: "PROBLEM: The alligator is in the Dry Season. The water is drying up and it is thirsty. It needs to find water!",
+                correctId: "dig_hole",
+                modules: [
+                    { id: "dig_hole", text: "Action: Dig a Water Hole", type: "correct", feedback: "CORRECT! They clear dirt from limestone holes to find water." },
+                    { id: "migrate", text: "Action: Fly South", type: "distractor", feedback: "TRY AGAIN. The text says birds fly south, but alligators stay." },
+                    { id: "spray", text: "Defense: Skunk Spray", type: "distractor", feedback: "TRY AGAIN. That is for skunks, not alligators." },
+                    { id: "camouflage", text: "Ability: Change Color", type: "distractor", feedback: "TRY AGAIN. That is for the Stick Bug (Phasmid)." }
+                ]
+            },
+            {
+                id: 2,
+                title: "CARIBOU",
+                desc: "PROBLEM: It is -10 degrees! The freezing cold air is hurting the Caribou's lungs when it breathes.",
+                correctId: "muzzle",
+                modules: [
+                    { id: "muzzle", text: "Part: Fuzzy Nose (Muzzle)", type: "correct", feedback: "CORRECT! The hair on the muzzle warms the air before they breathe it in." },
+                    { id: "fat", text: "Part: Thick Fat", type: "distractor", feedback: "CLOSE. Fat keeps the body warm, but the Muzzle protects the lungs." },
+                    { id: "compact", text: "Shape: Small Body", type: "distractor", feedback: "TRY AGAIN. A small body saves heat, but doesn't fix the breathing problem." },
+                    { id: "lichen", text: "Food: Eat Lichen", type: "distractor", feedback: "TRY AGAIN. Eating helps them survive, but it doesn't warm the air." }
+                ]
+            },
+            {
+                id: 3,
+                title: "PHASMID",
+                desc: "PROBLEM: A bird just ate the Phasmid! The bird saw it moving during the bright daytime.",
+                correctId: "nocturnal",
+                modules: [
+                    { id: "nocturnal", text: "Behavior: Active at Night", type: "correct", feedback: "CORRECT! Being active at night (Nocturnal) makes it harder for birds to see them." },
+                    { id: "poison", text: "Color: Bright Warning Colors", type: "distractor", feedback: "TRY AGAIN. Bright colors are for poisonous animals. Phasmids hide." },
+                    { id: "vibration", text: "Sense: Feel Vibrations", type: "distractor", feedback: "TRY AGAIN. The text mentions this for other animals." },
+                    { id: "pounce", text: "Action: Pounce on Prey", type: "distractor", feedback: "TRY AGAIN. Alligators pounce. Phasmids move slowly." }
+                ]
+            },
+            {
+                id: 4,
+                title: "SKUNK",
+                desc: "PROBLEM: A wolf is chasing the Skunk! The Skunk is slow and cannot outrun the wolf.",
+                correctId: "spray",
+                modules: [
+                    { id: "spray", text: "Defense: Spray Bad Smell", type: "correct", feedback: "CORRECT! Skunks blast predators with a horrible smelling spray." },
+                    { id: "run", text: "Action: Run Very Fast", type: "distractor", feedback: "TRY AGAIN. Skunks are not fast runners." },
+                    { id: "hide", text: "Action: Camouflage", type: "distractor", feedback: "TRY AGAIN. Skunks are black and white, they don't blend in well!" },
+                    { id: "dig", text: "Action: Dig a Hole", type: "distractor", feedback: "TRY AGAIN. Digging takes too long when a wolf is chasing you." }
+                ]
+            },
+            {
+                id: 5,
+                title: "POISONOUS FROG",
+                desc: "PROBLEM: This frog is poisonous, but predators don't know that. It needs to warn them so they don't eat it.",
+                correctId: "colors",
+                modules: [
+                    { id: "colors", text: "Look: Bright Warning Colors", type: "correct", feedback: "CORRECT! Bright colors warn predators that an animal is poisonous." },
+                    { id: "fur", text: "Part: Grow Thick Fur", type: "distractor", feedback: "TRY AGAIN. Frogs do not have fur." },
+                    { id: "teeth", text: "Part: Sharp Teeth", type: "distractor", feedback: "TRY AGAIN. This frog uses poison, not biting, for defense." },
+                    { id: "hide", text: "Action: Hide in Leaves", type: "distractor", feedback: "TRY AGAIN. If it hides, it can't warn the predator!" }
+                ]
+            },
+            {
+                id: 6,
+                title: "BONUS: MIGRATING BIRD",
+                desc: "BONUS LEVEL: It is winter. The food is gone and it is too cold for this bird to stay here.",
+                correctId: "migrate",
+                modules: [
+                    { id: "migrate", text: "Behavior: Migrate South", type: "correct", feedback: "CORRECT! Birds migrate south every winter to avoid harsh temperatures." },
+                    { id: "hibernate", text: "Behavior: Hibernate", type: "distractor", feedback: "TRY AGAIN. Bears hibernate, but most birds fly away." },
+                    { id: "fur", text: "Part: Grow Winter Coat", type: "distractor", feedback: "TRY AGAIN. Birds have feathers, not fur coats!" },
+                    { id: "swim", text: "Action: Swim Under Ice", type: "distractor", feedback: "TRY AGAIN. This bird needs to fly to a warmer place." }
+                ]
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        const consoleEl = document.getElementById('console');
+        const dropZone = document.getElementById('drop-zone');
+        const modulesContainer = document.getElementById('modules-container');
+        const levelIndicator = document.getElementById('level-indicator');
+
+        // --- GAME LOGIC ---
+        function loadLevel(index) {
+            const level = levels[index];
+            levelIndicator.innerText = index + 1;
+            
+            setTimeout(() => {
+                speakWithHighlight(level.desc, 'scenario-desc');
+            }, 500);
+
+            modulesContainer.innerHTML = '';
+            dropZone.innerText = "[ DRAG BLUE BLOCK HERE ]";
+            dropZone.classList.remove('correct');
+            dropZone.style.border = "3px dashed var(--accent-blue)";
+
+            const shuffled = level.modules.sort(() => Math.random() - 0.5);
+            shuffled.forEach(mod => {
+                const el = document.createElement('div');
+                el.classList.add('module');
+                el.setAttribute('draggable', 'true');
+                el.dataset.id = mod.id;
+                
+                const span = document.createElement('span');
+                span.innerText = mod.text;
+                el.appendChild(span);
+
+                const speaker = document.createElement('span');
+                speaker.className = "speaker-icon";
+                speaker.innerText = "🔊";
+                speaker.onclick = (e) => {
+                    e.stopPropagation(); 
+                    speak(mod.text); 
+                };
+                el.appendChild(speaker);
+                
+                el.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', mod.id);
+                    e.dataTransfer.effectAllowed = "copy";
+                });
+                modulesContainer.appendChild(el);
+            });
+            
+            log(`> Level ${index + 1} Loaded.`, 'info');
+        }
+
+        function replayScenario() {
+            const level = levels[currentLevelIndex];
+            speakWithHighlight(level.desc, 'scenario-desc');
+        }
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const draggedId = e.dataTransfer.getData('text/plain');
+            checkAnswer(draggedId);
+        });
+
+        function checkAnswer(id) {
+            const level = levels[currentLevelIndex];
+            const module = level.modules.find(m => m.id === id);
+
+            if (id === level.correctId) {
+                dropZone.innerText = ">> FIXED! <<";
+                dropZone.classList.add('correct');
+                dropZone.style.border = "3px solid var(--accent-green)";
+                
+                log(`> ${module.feedback}`, 'success');
+                speak(module.feedback);
+                
+                setTimeout(() => {
+                    currentLevelIndex++;
+                    if (currentLevelIndex < levels.length) {
+                        loadLevel(currentLevelIndex);
+                    } else {
+                        endGame();
+                    }
+                }, 6000); 
+
+            } else {
+                log(`> TRY AGAIN: ${module.feedback}`, 'error');
+                speak(module.feedback);
+                
+                dropZone.style.transform = "translateX(5px)";
+                setTimeout(() => dropZone.style.transform = "translateX(0)", 100);
+                setTimeout(() => dropZone.style.transform = "translateX(-5px)", 200);
+                setTimeout(() => dropZone.style.transform = "translateX(0)", 300);
+            }
+        }
+
+        function log(msg, type) {
+            const line = document.createElement('span');
+            line.classList.add('log-entry');
+            if (type === 'error') line.classList.add('log-error');
+            if (type === 'success') line.classList.add('log-success');
+            if (type === 'info') line.classList.add('log-info');
+            line.innerText = msg;
+            consoleEl.appendChild(line);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function endGame() {
+            // Hide Game, Show Reward
+            document.querySelector('.game-container').style.display = 'none';
+            document.querySelector('.header-controls').style.display = 'none';
+            document.getElementById('reward-screen').style.display = 'flex';
+            
+            speak("Mission Accomplished! You have earned the Bio-Engineer Certificate.");
+        }
+    </script>
+</body>
+</html>
